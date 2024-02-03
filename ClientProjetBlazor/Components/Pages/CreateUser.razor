@@ -1,0 +1,54 @@
+@page "/createuser"
+@inject NavigationManager NavigationManager 
+@rendermode InteractiveServer
+
+@if(issaved)
+{
+    <p>koko</p>
+}
+
+<p>@message</p>
+<h3>Create User</h3>
+ <div class="form-group">
+    <label for="Username">Username:</label>
+    <input type="text" id="Username" class="form-control" @bind="user.Username" />
+</div>
+<div class="form-group">
+    <label for="FirstName">Firstname:</label>
+    <input type="text" id="FirstName" class="form-control" @bind="user.FirstName" />
+</div>
+<div class="form-group">
+    <label for="LastName">Lastname:</label>
+    <input type="text" id="LastName" class="form-control" @bind="user.LastName" />
+
+
+    <button class="btn btn-success" @onclick="Save">save</button>
+
+
+
+</div>
+
+@code {
+    private string message{ get; set; }
+    private User user = new User();
+
+    private bool issaved { get; set; } = true;
+    private async Task Save()
+    {
+        try
+        {
+            issaved = false;
+            HttpClient httpClient = new HttpClient();
+            var response = await httpClient.PostAsJsonAsync("https://localhost:44389/api/User", user);
+            NavigationManager.NavigateTo("/userlist");
+
+        }
+        catch (Exception ex)
+        {
+            message = ex.Message;
+        }
+       
+        
+    }
+}
+ 

@@ -1,0 +1,22 @@
+﻿@page "/create"
+@rendermode InteractiveServer
+
+<h3>Create</h3>
+@if (isclicked)
+{
+    <p>clicked</p>
+}
+else
+{
+    <p>Not clicked</p>
+}
+<button @onclick="Save">save</button>
+
+@code {
+    private bool isclicked { get; set; } = false;
+    private void Save()
+    {
+        isclicked = true;
+    }
+
+}

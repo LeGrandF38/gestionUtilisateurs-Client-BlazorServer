@@ -1,0 +1,65 @@
+@page "/edituser/{userId}"
+
+
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<h3>Edit User</h3>
+@if (isclicked)
+{
+  <p>ISCLICKED</p>  
+}
+
+@if (user == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="form-group">
+        <label for="Username">Username:</label>
+        <input type="text" id="Username" class="form-control" @bind="user.Username" />
+    </div>
+    <div class="form-group">
+        <label for="Firstname">Firstname:</label>
+        <input type="text" id="Firstname" class="form-control" @bind="user.FirstName" />
+    </div>
+        <div class="form-group">
+        <label for="Lastname">Lastname:</label>
+        <input type="text" id="Lastname" class="form-control" @bind="user.LastName" />
+    </div>
+    <button  @onclick="SaveUser">Save</button>
+}
+
+@code {
+    bool isclicked = false;
+    private User user;
+
+    [Parameter]
+    public string userId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (int.TryParse(userId, out var id))
+        {
+            HttpClient httpClient = new HttpClient();
+            user = await httpClient.GetFromJsonAsync<User>($"https://localhost:44389/api/User/{id}");
+        }
+    }
+
+    private async Task SaveUser()
+    {
+        isclicked = true;
+        HttpClient httpClient = new HttpClient();
+        var response = await httpClient.PutAsJsonAsync($"https://localhost:44389/api/User/", user);
+
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/userlist");
+        }
+        else
+        {
+            Console.WriteLine($"Failed to save user. Status code: {response.StatusCode}");
+        }
+    }
+}

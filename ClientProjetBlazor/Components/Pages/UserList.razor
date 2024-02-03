@@ -1,0 +1,120 @@
+@page "/userlist"
+@inherits ComponentBase
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+<h3>User List</h3>
+
+
+
+@if (users == null)
+{
+	<p>Loading...</p>
+}
+else
+{
+	<table class="table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Username</th>
+				<th>FirstName</th>
+				<th>Lastname</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var user in users)
+			{
+				<tr>
+					<td>@user.Id</td>
+					<td>@user.Username</td>
+					<td>@user.FirstName</td>
+					<td>@user.LastName</td>
+					
+					<td>
+						<button class="btn btn-info" @onclick="() => EditUser(user)">Edit</button>
+						<button class="btn btn-danger" @onclick="() =>DeleteUser(user)">Delete</button>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+
+	<button class="btn btn-success" @onclick="CreateUser">Create New User</button>
+}
+
+
+@code {
+	bool isclicked = false;
+	private List<User> users;
+
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			await LoadUsers();
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error in OnInitializedAsync: {ex}");
+			throw;
+		}
+	}
+
+	private async Task LoadUsers()
+	{
+		try
+		{
+			//Console.WriteLine("LoadUser method called");
+			var httpClient = new HttpClient();
+			users = await httpClient.GetFromJsonAsync<List<User>>("https://localhost:44389/api/User");
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error loading users: {ex.Message}");
+		}
+	}
+
+	private void EditUser(User user)
+	{
+		NavigationManager.NavigateTo($"/edituser/{user.Id}");
+	}
+
+	private async Task DeleteUser(User user)
+	{
+		try
+		{
+			
+			
+			var httpClient = new HttpClient();
+			var response = await httpClient.DeleteAsync($"https://localhost:44389/api/User?id={user.Id}");
+
+			if (response.IsSuccessStatusCode)
+			{
+				Console.WriteLine($"User with ID {user.Id} deleted successfully.");
+
+				await LoadUsers();
+			}
+			else
+			{
+				Console.WriteLine($"Failed to delete user with ID {user.Id}. Status code: {response.StatusCode}");
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Error deleting user: {ex.Message}");
+		}
+	}
+
+
+	private void CreateUser()
+
+	{
+		Console.WriteLine("CreateUser method called");
+		NavigationManager.NavigateTo("/createuser");
+	}
+	private void Create()
+	{
+		NavigationManager.NavigateTo("/create");
+	}
+}
